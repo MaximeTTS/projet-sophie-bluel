@@ -1,0 +1,72 @@
+[33mcommit 5ce78d6a62301396467af85b2f5721a5f94428cc[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Merge: 4752342 021bb13
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Mon Jan 8 19:12:11 2024 +0100
+
+    Merge branch 'main' of https://github.com/MaximeTTS/projet-sophie-bluel
+
+[33mcommit 4752342fbb84308b3c3ab107737d6a9575e16068[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Mon Jan 8 19:06:36 2024 +0100
+
+    Login section added
+
+[33mcommit 021bb1385501807622217a44bebcf18b38b739ec[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Mon Jan 8 18:09:27 2024 +0100
+
+    .
+
+[33mcommit adf0a79721ccb3984d75b9c3067e9117cf28cd06[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Sun Jan 7 14:52:01 2024 +0100
+
+    Add login page, html and css
+
+[33mcommit 3485c418f4a6a65a35f65e474122b1c5173aa7e8[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Sat Jan 6 21:03:36 2024 +0100
+
+    Added filter buttons with JS functionality and css design
+
+[33mcommit f2913921669b3bfb8acb7c9b3e66977cfd4c317b[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Sat Jan 6 18:02:36 2024 +0100
+
+    Dynamic modification and addition of gallery items using the fetch method
+
+[33mcommit 8003b1679d721b8cea807b92384dc7fde6e60120[m
+Author: MaximeTTS <maxime.s.turquet@gmail.com>
+Date:   Sat Jan 6 17:40:19 2024 +0100
+
+    Sophie Bluel project added
+
+[33mcommit 56bd6dde57b7f0e1a690bdb0c8d90a2351b5eb8c[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: aurelien-oc-mentorship <65898532+aurelien-oc-mentorship@users.noreply.github.com>
+Date:   Sun Oct 29 07:57:16 2023 -0500
+
+    Update index.html
+
+[33mcommit 2909ca436dcf2da11ad9f81fbd3052e20ec74c18[m
+Author: aurelien-oc-mentorship <65898532+aurelien-oc-mentorship@users.noreply.github.com>
+Date:   Mon Sep 11 08:50:15 2023 -0500
+
+    Create README.md
+
+[33mcommit 4b54c31296bfd29c1a21347cf2c628e1f0815213[m
+Author: aurelien-oc-mentorship <65898532+aurelien-oc-mentorship@users.noreply.github.com>
+Date:   Fri Feb 3 07:55:23 2023 -0500
+
+    Fix Cross Origin Error on Images
+
+[33mcommit 84d5c634dcdd867934d6b889a769e2f9bd3257f6[m
+Author: aurelien-oc-mentorship <65898532+aurelien-oc-mentorship@users.noreply.github.com>
+Date:   Mon Nov 7 21:18:26 2022 -0500
+
+    Fix images missing and .env missing
+
+[33mcommit a0fabfc1d834de387c98d97f60b46b14078e83df[m
+Author: Aurelien <oc@aurelienantonio.com>
+Date:   Thu May 19 14:06:25 2022 -0500
+
+    First commit
