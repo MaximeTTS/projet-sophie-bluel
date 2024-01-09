@@ -115,3 +115,50 @@ document.querySelectorAll('.btn__filters').forEach((button) => {
     filterWorks(this.textContent)
   })
 })
+
+document.addEventListener('DOMContentLoaded', () => {
+  const loginLink = document.querySelector('nav ul li a[href="login.html"]')
+  const isLoggedIn = localStorage.getItem('isLoggedIn')
+  const galleryContainer = document.querySelector('.gallery')
+
+  // Gestion de l'état de connexion
+  if (isLoggedIn) {
+    loginLink.textContent = 'Logout'
+    loginLink.href = '#'
+    loginLink.addEventListener('click', (e) => {
+      e.preventDefault()
+      localStorage.removeItem('userToken')
+      localStorage.removeItem('isLoggedIn')
+      window.location.href = 'login.html'
+    })
+
+    // Affichez l'icône "Modifier"
+    document.querySelector('.filters').style.display = 'none'
+    document.getElementById('editButton').style.display = 'block'
+  } else {
+    loginLink.textContent = 'Login'
+    loginLink.href = 'login.html'
+  }
+
+  // Gestion de la galerie
+  fetch('http://localhost:5678/api/works')
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+      return response.json()
+    })
+    .then((works) => {
+      galleryContainer.innerHTML = works
+        .map(
+          (work) =>
+            `<figure>
+          <img src="${work.imageUrl}" alt="${work.title}">
+          <figcaption>${work.title}</figcaption>
+        </figure>`
+        )
+        .join('')
+    })
+    .catch((error) => {
+      console.error('There was a problem with the fetch operation:', error)
+      galleryContainer.textContent = 'Failed to load works.'
+    })
+})
