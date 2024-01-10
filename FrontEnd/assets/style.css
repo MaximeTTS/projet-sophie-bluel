@@ -362,6 +362,7 @@ html {
   justify-content: center;
   font-family: 'Work Sans';
   font-size: 14px;
+  display: none;
 }
 
 /* Style des éléments de liste dans la top-bar */
@@ -425,6 +426,7 @@ html {
   display: flex;
   align-items: center;
   gap: 10px;
+  display: none;
 }
 
 /*settings btn modifier photo */
@@ -445,4 +447,5 @@ html {
   display: flex;
   align-items: center;
   gap: 10px;
+  display: none;
 }
