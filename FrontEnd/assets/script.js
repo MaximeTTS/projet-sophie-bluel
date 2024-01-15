@@ -1,77 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
   const galleryContainer = document.querySelector('.gallery')
+  const allWorks = [] // Garder une liste de tous les travaux pour faciliter le filtrage
 
-  fetch('http://localhost:5678/api/works')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      return response.json()
-    })
-    .then((works) => {
-      galleryContainer.innerHTML = '' // Videz la galerie avant d'ajouter les nouveaux travaux
+  // Fonction pour créer un élément figure
+  function createFigure(work) {
+    const figure = document.createElement('figure')
+    const image = document.createElement('img')
+    image.src = work.imageUrl
+    image.alt = work.title
+    figure.appendChild(image)
 
-      works.forEach((work) => {
-        // Créez un élément figure pour chaque travail
-        const figure = document.createElement('figure')
+    const figcaption = document.createElement('figcaption')
+    figcaption.textContent = work.title
+    figure.appendChild(figcaption)
 
-        // Ajoutez une image si disponible
-        const image = document.createElement('img')
-        image.src = work.imageUrl
-        image.alt = work.title
-        figure.appendChild(image)
-
-        // Ajoutez une légende avec le titre du travail
-        const figcaption = document.createElement('figcaption')
-        figcaption.textContent = work.title
-        figure.appendChild(figcaption)
-
-        // Insérez la figure dans le conteneur de la galerie
-        galleryContainer.appendChild(figure)
-      })
-    })
-    .catch((error) => {
-      console.error('There was a problem with the fetch operation:', error)
-      galleryContainer.textContent = 'Failed to load works.'
-    })
-})
-
-document.addEventListener('DOMContentLoaded', () => {
-  const galleryContainer = document.querySelector('.gallery')
-
-  // Récupération des travaux depuis l'API
-  let allWorks = []
-  fetch('http://localhost:5678/api/works')
-    .then((response) => response.json())
-    .then((works) => {
-      allWorks = works
-      displayWorks(allWorks)
-    })
-    .catch((error) => console.error('Error fetching works:', error))
+    return figure
+  }
 
   // Fonction pour afficher les travaux dans la galerie
   function displayWorks(works) {
     galleryContainer.innerHTML = '' // Videz la galerie avant d'ajouter les nouveaux travaux
     works.forEach((work) => {
-      const figure = document.createElement('figure')
-      const image = document.createElement('img')
-      image.src = work.imageUrl
-      image.alt = work.title
-      figure.appendChild(image)
-      const figcaption = document.createElement('figcaption')
-      figcaption.textContent = work.title
-      figure.appendChild(figcaption)
+      const figure = createFigure(work)
       galleryContainer.appendChild(figure)
     })
   }
 
-  // Ajout d'écouteurs d'événements sur les boutons de filtre
-  document.querySelectorAll('.btn__filters').forEach((button) => {
-    button.addEventListener('click', () => {
-      filterWorks(button.textContent)
-    })
-  })
-
+  // Fonction pour normaliser une chaîne de caractères (pour le filtrage)
   function normalizeString(str) {
     return str
       .normalize('NFD')
@@ -82,46 +37,56 @@ document.addEventListener('DOMContentLoaded', () => {
       .trim()
   }
 
+  // Fonction pour filtrer les travaux par catégorie
   function filterWorks(category) {
-    // Si le bouton "Tous" est cliqué, affichez tous les travaux.
+    const normalizedCategory = normalizeString(category)
     if (category === 'Tous') {
       displayWorks(allWorks)
     } else {
-      // Sinon, filtrez les travaux par catégorie.
-      // Nous utilisons normalizeString pour la comparaison afin d'éviter les problèmes de casse et d'espacement.
-      const normalizedCategory = normalizeString(category)
       const filteredWorks = allWorks.filter((work) => {
         const normalizedWorkCategory = normalizeString(work.category.name)
         return normalizedWorkCategory === normalizedCategory
       })
 
-      console.log(`Travaux filtrés pour la catégorie: '${category}'`, filteredWorks)
+      console.log(`Travaux filtrés pour la catégorie : '${category}'`, filteredWorks)
       displayWorks(filteredWorks)
     }
   }
-})
 
-document.querySelectorAll('.btn__filters').forEach((button) => {
-  button.addEventListener('click', function () {
-    // Enlevez la classe 'btn__filters--selected' de tous les boutons
-    document.querySelectorAll('.btn__filters').forEach((btn) => {
-      btn.classList.remove('btn__filters--selected')
+  // Récupération des travaux depuis l'API
+  fetch('http://localhost:5678/api/works')
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      return response.json()
     })
+    .then((works) => {
+      allWorks.push(...works) // Ajoutez tous les travaux à la liste
+      displayWorks(allWorks) // Affichez tous les travaux dans la galerie
+    })
+    .catch((error) => console.error('Error fetching works:', error))
 
-    // Ajoutez la classe 'btn__filters--selected' au bouton cliqué
-    this.classList.add('btn__filters--selected')
+  // Ajout d'écouteurs d'événements sur les boutons de filtre
+  document.querySelectorAll('.btn__filters').forEach((button) => {
+    button.addEventListener('click', () => {
+      // Enlevez la classe 'btn__filters--selected' de tous les boutons
+      document.querySelectorAll('.btn__filters').forEach((btn) => {
+        btn.classList.remove('btn__filters--selected')
+      })
 
-    // Appelez filterWorks avec le texte du bouton
-    filterWorks(this.textContent)
+      // Ajoutez la classe 'btn__filters--selected' au bouton cliqué
+      button.classList.add('btn__filters--selected')
+
+      // Appelez filterWorks avec le texte du bouton
+      filterWorks(button.textContent)
+    })
   })
-})
-
-document.addEventListener('DOMContentLoaded', () => {
-  const loginLink = document.querySelector('nav ul li a[href="login.html"]')
-  const isLoggedIn = localStorage.getItem('isLoggedIn')
-  const galleryContainer = document.querySelector('.gallery')
 
   // Gestion de l'état de connexion
+  const loginLink = document.querySelector('nav ul li a[href="login.html"]')
+  const isLoggedIn = localStorage.getItem('isLoggedIn')
+
   if (isLoggedIn) {
     loginLink.textContent = 'Logout'
     loginLink.href = '#'
@@ -139,26 +104,44 @@ document.addEventListener('DOMContentLoaded', () => {
     loginLink.textContent = 'Login'
     loginLink.href = 'login.html'
   }
+})
 
-  // Gestion de la galerie
-  fetch('http://localhost:5678/api/works')
-    .then((response) => {
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-      return response.json()
-    })
-    .then((works) => {
-      galleryContainer.innerHTML = works
-        .map(
-          (work) =>
-            `<figure>
-          <img src="${work.imageUrl}" alt="${work.title}">
-          <figcaption>${work.title}</figcaption>
-        </figure>`
-        )
-        .join('')
-    })
-    .catch((error) => {
-      console.error('There was a problem with the fetch operation:', error)
-      galleryContainer.textContent = 'Failed to load works.'
-    })
+document.addEventListener('DOMContentLoaded', function () {
+  const updateWorksButton = document.getElementById('update-works')
+  const closeButtonFirstWindow = document.getElementById('button__to__close__first__window')
+  const closeButtonSecondWindow = document.getElementById('button__to__close__second__window')
+  const arrowReturn = document.getElementById('arrow__return')
+  const dialog = document.getElementById('dialog')
+  const addButton = document.getElementById('dialog__edit__add')
+  const dialogGallery = document.getElementById('dialog__gallery')
+  const dialogEdit = document.getElementById('dialog__edit')
+
+  function resetDialog() {
+    dialogGallery.style.display = 'block' // Afficher la première fenêtre
+    dialogEdit.style.display = 'none' // Masquer la seconde fenêtre
+  }
+
+  function hideDialog() {
+    dialog.style.display = 'none' // Masquer le dialog
+    resetDialog() // Réinitialiser l'état du dialogue
+  }
+
+  updateWorksButton.addEventListener('click', function () {
+    dialog.style.display = 'flex' // Afficher le dialog
+    resetDialog() // Réinitialiser l'état du dialogue
+  })
+
+  closeButtonFirstWindow.addEventListener('click', hideDialog)
+
+  addButton.addEventListener('click', function () {
+    dialogGallery.style.display = 'none' // Masquer la première fenêtre
+    dialogEdit.style.display = 'block' // Afficher la seconde fenêtre
+  })
+
+  closeButtonSecondWindow.addEventListener('click', hideDialog)
+
+  arrowReturn.addEventListener('click', function (e) {
+    e.preventDefault() // Empêcher le comportement par défaut du lien
+    resetDialog() // Revenir à l'état initial du dialogue
+  })
 })

@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Mise à jour du lien de connexion/déconnexion
   const loginLink = document.querySelector('nav ul li a[href="login.html"]')
   const topBar = document.querySelector('.top__bar__css')
-  const adminElements = document.querySelectorAll('.only-admin')
+  const adminElements = document.querySelectorAll('.connexion')
   const bodyStyle = document.body.style
   const isLoggedIn = localStorage.getItem('isLoggedIn')
 
