@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const galleryContainer = document.querySelector('.gallery')
   const allWorks = [] // Garder une liste de tous les travaux pour faciliter le filtrage
+  const dialog = document.getElementById('dialog')
+  const updateWorksButton = document.getElementById('update-works')
 
   // Fonction pour créer un élément figure
   function createFigure(work) {
@@ -19,10 +21,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Fonction pour afficher les travaux dans la galerie
   function displayWorks(works) {
-    galleryContainer.innerHTML = '' // Videz la galerie avant d'ajouter les nouveaux travaux
+    galleryContainer.innerHTML = ''
     works.forEach((work) => {
       const figure = createFigure(work)
       galleryContainer.appendChild(figure)
+    })
+  }
+
+  function displayWorksInDialog(works) {
+    const dialogGalleryContent = document.getElementById('dialog__gallery').querySelector('.dialog__content')
+    dialogGalleryContent.innerHTML = ''
+
+    works.forEach((work, index) => {
+      // Créez un élément <figure>
+      const figure = document.createElement('figure')
+
+      // Créez un élément <div> pour contenir l'image et les icônes
+      const container = document.createElement('div')
+      container.style.position = 'relative'
+
+      // Créez un élément <i> pour l'icône de la corbeille
+      const trashIcon = document.createElement('i')
+      trashIcon.classList.add('fas', 'fa-trash-can')
+      container.appendChild(trashIcon)
+
+      // Créez un élément <img> pour afficher l'image
+      const image = document.createElement('img')
+      image.src = work.imageUrl
+      image.alt = 'Image'
+      container.appendChild(image)
+
+      // Si c'est la première itération (index = 0), ajoutez l'icône Move
+      if (index === 0) {
+        const iconMove = document.createElement('i')
+        iconMove.classList.add('fas', 'fa-arrows-up-down-left-right', 'custom-icon')
+        iconMove.style.color = '#ffffff'
+        container.appendChild(iconMove)
+      }
+
+      // Créez un élément <a> avec le texte "Éditer"
+      const editLink = document.createElement('a')
+      editLink.textContent = 'éditer'
+      editLink.href = '#'
+      editLink.classList.add('edit__link')
+
+      // Ajoutez le conteneur à la figure
+      figure.appendChild(container)
+
+      // Ajoutez le lien "éditer" à la figure
+      figure.appendChild(editLink)
+
+      dialogGalleryContent.appendChild(figure)
     })
   }
 
@@ -64,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then((works) => {
       allWorks.push(...works) // Ajoutez tous les travaux à la liste
       displayWorks(allWorks) // Affichez tous les travaux dans la galerie
+      displayWorksInDialog(allWorks) // Affichez les travaux dans la fenêtre du dialogue
     })
     .catch((error) => console.error('Error fetching works:', error))
 
@@ -104,6 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loginLink.textContent = 'Login'
     loginLink.href = 'login.html'
   }
+
+  // Ajout de l'écouteur d'événement pour le bouton d'ouverture du dialogue
+  updateWorksButton.addEventListener('click', function () {
+    dialog.style.display = 'flex'
+    displayWorksInDialog(allWorks)
+  })
 })
 
 document.addEventListener('DOMContentLoaded', function () {

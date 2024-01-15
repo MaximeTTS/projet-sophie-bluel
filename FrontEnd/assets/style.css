@@ -692,3 +692,40 @@ select {
   font-size: 1em;
   background-color: #a7a7a7;
 }
+
+.edit__link {
+  text-decoration: none;
+  color: #000000;
+  padding-top: 5px;
+}
+
+.fa-trash-can {
+  color: #ffffff;
+  font-size: 12px;
+  background-color: #000000;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+.icon-move {
+  background-color: #000000;
+}
+
+.icon-move {
+  font-size: 12px;
+  color: #000000;
+}
+
+.fa-arrows-up-down-left-right {
+  color: #ffffff;
+  font-size: 12px;
+  background-color: #000000;
+  position: absolute;
+  top: 5px;
+  right: 27px;
+  padding: 4px;
+  border-radius: 5px;
+}
