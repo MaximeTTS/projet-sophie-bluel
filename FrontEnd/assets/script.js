@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     works.forEach((work, index) => {
       // Créez un élément <figure>
       const figure = document.createElement('figure')
+      figure.setAttribute('data-id', work.id)
 
       // Créez un élément <div> pour contenir l'image et les icônes
       const container = document.createElement('div')
@@ -44,6 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const trashIcon = document.createElement('i')
       trashIcon.classList.add('fas', 'fa-trash-can')
       container.appendChild(trashIcon)
+
+      // Ajoutez un gestionnaire d'événements pour l'icône de la corbeille
+      trashIcon.addEventListener('click', function () {
+        // Appelez une fonction pour supprimer la photo
+        deletePhoto(work.id)
+      })
 
       // Créez un élément <img> pour afficher l'image
       const image = document.createElement('img')
@@ -160,6 +167,44 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.style.display = 'flex'
     displayWorksInDialog(allWorks)
   })
+
+  function deletePhoto(photoId) {
+    // Récupérer le token d'authentification depuis le stockage local
+    const authToken = localStorage.getItem('userToken')
+
+    if (!authToken) {
+      console.error("Token d'authentification manquant")
+      alert('Vous devez être connecté pour effectuer cette action.')
+      return
+    }
+
+    const headers = new Headers({
+      Authorization: `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    })
+
+    fetch(`http://localhost:5678/api/works/${photoId}`, {
+      method: 'DELETE',
+      headers: headers,
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Si la suppression est réussie, actualiser la galerie ou effectuer d'autres actions nécessaires
+          console.log(`Photo avec l'ID ${photoId} supprimée avec succès.`)
+        } else if (response.status === 401) {
+          console.error('Non autorisé à supprimer la photo')
+          alert("Vous n'êtes pas autorisé à effectuer cette action.")
+        } else {
+          return response.json().then((data) => {
+            throw new Error(data.message)
+          })
+        }
+      })
+      .catch((error) => {
+        console.error('Erreur lors de la suppression de la photo:', error)
+        alert('Erreur lors de la suppression de la photo : ' + error.message)
+      })
+  }
 })
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -199,5 +244,12 @@ document.addEventListener('DOMContentLoaded', function () {
   arrowReturn.addEventListener('click', function (e) {
     e.preventDefault() // Empêcher le comportement par défaut du lien
     resetDialog() // Revenir à l'état initial du dialogue
+  })
+
+  // écouteur d'événements pour masquer le dialogue lorsque l'utilisateur clique en dehors
+  window.addEventListener('click', function (e) {
+    if (e.target === dialog) {
+      hideDialog()
+    }
   })
 })
