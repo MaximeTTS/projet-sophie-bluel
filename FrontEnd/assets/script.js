@@ -3,6 +3,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const allWorks = [] // Garder une liste de tous les travaux pour faciliter le filtrage
   const dialog = document.getElementById('dialog')
   const updateWorksButton = document.getElementById('update-works')
+  const dialogEdit = document.getElementById('dialog__edit')
+
+  document.getElementById('dialog__edit__work__form').addEventListener('submit', function (e) {
+    e.preventDefault()
+
+    const title = document.getElementById('form__title').value
+    const category = document.getElementById('form__category').value
+    const imageInput = document.getElementById('form__image')
+
+    if (!title || !category) {
+      alert('Le titre et la catégorie sont obligatoires.')
+      return
+    }
+
+    if (imageInput.files.length === 0) {
+      alert('Veuillez sélectionner une image.')
+      return
+    }
+
+    const newWork = {
+      title: title,
+      imageUrl: URL.createObjectURL(imageInput.files[0]),
+      category: { name: category },
+    }
+
+    allWorks.push(newWork)
+    displayWorks(allWorks)
+
+    // Mettre à jour la liste déroulante des catégories
+    updateCategoryDropdown(allWorks)
+
+    dialog.style.display = 'none'
+    document.getElementById('dialog__edit__work__form').reset()
+  })
 
   // Fonction pour créer un élément figure
   function createFigure(work) {
@@ -109,6 +143,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Fonction pour mettre à jour la liste déroulante des catégories
+  function updateCategoryDropdown(works) {
+    const categoryDropdown = document.getElementById('form__category')
+    const categories = new Set(works.map((work) => work.category.name))
+
+    // Effacer toutes les options actuelles
+    categoryDropdown.innerHTML = ''
+
+    // Ajouter une option "Tous" par défaut
+    const allOption = document.createElement('option')
+    allOption.value = 'Tous'
+    allOption.textContent = 'Tous'
+    categoryDropdown.appendChild(allOption)
+
+    // Ajouter chaque catégorie unique comme option
+    categories.forEach((category) => {
+      const option = document.createElement('option')
+      option.value = category
+      option.textContent = category
+      categoryDropdown.appendChild(option)
+    })
+  }
+
   // Récupération des travaux depuis l'API
   fetch('http://localhost:5678/api/works')
     .then((response) => {
@@ -121,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       allWorks.push(...works) // Ajoutez tous les travaux à la liste
       displayWorks(allWorks) // Affichez tous les travaux dans la galerie
       displayWorksInDialog(allWorks) // Affichez les travaux dans la fenêtre du dialogue
+      updateCategoryDropdown(allWorks) // Mettez à jour la liste déroulante des catégories
     })
     .catch((error) => console.error('Error fetching works:', error))
 
@@ -247,6 +305,25 @@ document.addEventListener('DOMContentLoaded', function () {
   })
 
   // écouteur d'événements pour masquer le dialogue lorsque l'utilisateur clique en dehors
+  window.addEventListener('click', function (e) {
+    if (e.target === dialog) {
+      hideDialog()
+    }
+  })
+
+  function hideDialog() {
+    dialog.style.display = 'none' // Masquer le dialogue
+    dialogGallery.style.display = 'block' // Afficher la première fenêtre
+    dialogEdit.style.display = 'none' // Masquer la seconde fenêtre
+  }
+
+  closeButtonFirstWindow.addEventListener('click', hideDialog)
+  closeButtonSecondWindow.addEventListener('click', hideDialog)
+  arrowReturn.addEventListener('click', function (e) {
+    e.preventDefault()
+    hideDialog()
+  })
+
   window.addEventListener('click', function (e) {
     if (e.target === dialog) {
       hideDialog()
