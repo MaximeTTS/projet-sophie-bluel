@@ -347,23 +347,4 @@ document.addEventListener('DOMContentLoaded', function () {
       hideDialog()
     }
   })
-
-  function hideDialog() {
-    dialog.style.display = 'none' // Masquer le dialogue
-    dialogGallery.style.display = 'block' // Afficher la première fenêtre
-    dialogEdit.style.display = 'none' // Masquer la seconde fenêtre
-  }
-
-  closeButtonFirstWindow.addEventListener('click', hideDialog)
-  closeButtonSecondWindow.addEventListener('click', hideDialog)
-  arrowReturn.addEventListener('click', function (e) {
-    e.preventDefault()
-    hideDialog()
-  })
-
-  window.addEventListener('click', function (e) {
-    if (e.target === dialog) {
-      hideDialog()
-    }
-  })
 })
