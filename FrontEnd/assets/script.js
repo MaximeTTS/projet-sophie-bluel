@@ -5,15 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateWorksButton = document.getElementById('update-works')
   const dialogEdit = document.getElementById('dialog__edit')
 
-  document.getElementById('dialog__edit__work__form').addEventListener('submit', function (e) {
+  document.getElementById('dialog__edit__work__form').addEventListener('submit', async function (e) {
     e.preventDefault()
 
+    const authToken = localStorage.getItem('userToken')
+
+    if (!authToken) {
+      console.error("Token d'authentification manquant")
+      alert('Vous devez être connecté pour effectuer cette action.')
+      return
+    }
+
     const title = document.getElementById('form__title').value
-    const category = document.getElementById('form__category').value
+    const category = parseInt(document.getElementById('form__category').value) // Conversion en entier
+
     const imageInput = document.getElementById('form__image')
 
-    if (!title || !category) {
-      alert('Le titre et la catégorie sont obligatoires.')
+    if (!title || isNaN(category)) {
+      alert('Le titre et la catégorie sont obligatoires et la catégorie doit être un nombre.')
       return
     }
 
@@ -22,17 +31,37 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    const newWork = {
-      title: title,
-      imageUrl: URL.createObjectURL(imageInput.files[0]),
-      category: { name: category },
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('category', category)
+    formData.append('image', imageInput.files[0])
+
+    try {
+      const response = await fetch('http://localhost:5678/api/works', {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: `Bearer ${authToken}`,
+        }),
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Erreur de réseau ou du serveur: ' + response.statusText)
+      }
+
+      const result = await response.json()
+
+      console.log(result)
+      alert('Travail enregistré avec succès')
+
+      // Mise à jour de l'interface utilisateur...
+      allWorks.push(result)
+      displayWorks(allWorks)
+      updateCategoryDropdown(allWorks)
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du formulaire:", error)
+      alert("Erreur lors de l'envoi du formulaire: " + error.message)
     }
-
-    allWorks.push(newWork)
-    displayWorks(allWorks)
-
-    // Mettre à jour la liste déroulante des catégories
-    updateCategoryDropdown(allWorks)
 
     dialog.style.display = 'none'
     document.getElementById('dialog__edit__work__form').reset()
@@ -143,28 +172,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Fonction pour mettre à jour la liste déroulante des catégories
-  function updateCategoryDropdown(works) {
+  function updateCategoryDropdown() {
     const categoryDropdown = document.getElementById('form__category')
-    const categories = new Set(works.map((work) => work.category.name))
 
-    // Effacer toutes les options actuelles
-    categoryDropdown.innerHTML = ''
-
-    // Ajouter une option "Tous" par défaut
-    const allOption = document.createElement('option')
-    allOption.value = 'Tous'
-    allOption.textContent = 'Tous'
-    categoryDropdown.appendChild(allOption)
-
-    // Ajouter chaque catégorie unique comme option
-    categories.forEach((category) => {
-      const option = document.createElement('option')
-      option.value = category
-      option.textContent = category
-      categoryDropdown.appendChild(option)
+    // Appel à l'API pour obtenir les catégories
+    fetch('http://localhost:5678/api/categories', {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
     })
+      .then((response) => response.json())
+      .then((categories) => {
+        // Effacer toutes les options actuelles
+        categoryDropdown.innerHTML = ''
+
+        // Ajouter chaque catégorie reçue comme option
+        categories.forEach((category) => {
+          const option = document.createElement('option')
+          option.value = category.id // Utiliser l'identifiant de la catégorie comme valeur
+          option.textContent = category.name
+          categoryDropdown.appendChild(option)
+        })
+      })
+      .catch((error) => {
+        console.error('Erreur lors de la récupération des catégories:', error)
+      })
   }
+
+  // Appel initial de la fonction
+  updateCategoryDropdown()
 
   // Récupération des travaux depuis l'API
   fetch('http://localhost:5678/api/works')
