@@ -3,38 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const allWorks = [] // Garder une liste de tous les travaux pour faciliter le filtrage
   const dialog = document.getElementById('dialog')
   const updateWorksButton = document.getElementById('update-works')
-  const dialogEdit = document.getElementById('dialog__edit')
 
-  document.getElementById('dialog__edit__work__form').addEventListener('submit', async function (e) {
-    e.preventDefault()
-
-    const authToken = localStorage.getItem('userToken')
-
-    if (!authToken) {
-      console.error("Token d'authentification manquant")
-      alert('Vous devez être connecté pour effectuer cette action.')
-      return
-    }
+  // Fonction pour envoyer le formulaire
+  async function submitForm(event) {
+    event.preventDefault()
 
     const title = document.getElementById('form__title').value
-    const category = parseInt(document.getElementById('form__category').value) // Conversion en entier
-
+    const category = parseInt(document.getElementById('form__category').value)
     const imageInput = document.getElementById('form__image')
-
-    if (!title || isNaN(category)) {
-      alert('Le titre et la catégorie sont obligatoires et la catégorie doit être un nombre.')
-      return
-    }
-
-    if (imageInput.files.length === 0) {
-      alert('Veuillez sélectionner une image.')
-      return
-    }
+    const authToken = localStorage.getItem('userToken')
+    const dialog = document.getElementById('dialog')
 
     const formData = new FormData()
     formData.append('title', title)
     formData.append('category', category)
-    formData.append('image', imageInput.files[0])
+
+    if (imageInput.files.length > 0) {
+      formData.append('image', imageInput.files[0])
+    } else {
+      alert('Veuillez sélectionner un fichier image.')
+      return
+    }
 
     try {
       const response = await fetch('http://localhost:5678/api/works', {
@@ -46,25 +35,82 @@ document.addEventListener('DOMContentLoaded', () => {
       })
 
       if (!response.ok) {
-        throw new Error('Erreur de réseau ou du serveur: ' + response.statusText)
+        throw new Error("Erreur lors de la mise à jour de l'œuvre : " + response.statusText)
       }
 
       const result = await response.json()
-
       console.log(result)
-      alert('Travail enregistré avec succès')
+      alert('Œuvre mise à jour avec succès')
 
-      // Mise à jour de l'interface utilisateur...
       allWorks.push(result)
       displayWorks(allWorks)
       updateCategoryDropdown(allWorks)
     } catch (error) {
-      console.error("Erreur lors de l'envoi du formulaire:", error)
-      alert("Erreur lors de l'envoi du formulaire: " + error.message)
+      console.error("Erreur lors de la mise à jour de l'œuvre :", error)
+      alert("Erreur lors de la mise à jour de l'œuvre : " + error.message)
     }
 
     dialog.style.display = 'none'
     document.getElementById('dialog__edit__work__form').reset()
+  }
+
+  // Écouteur d'événements pour la prévisualisation de l'image
+  document.getElementById('form__image').addEventListener('change', function () {
+    const file = this.files[0]
+    const photoAddIcon = document.getElementById('photo__add__icon')
+    const photoSizeText = document.getElementById('photo__size')
+    const newImageLabel = document.getElementById('new__image')
+    const newPhotoElements = document.querySelectorAll('.dialog__content__new__photo')
+    const submitButton = document.getElementById('submit__new__work')
+
+    const maxFileSize = 4 * 1024 * 1024 // 4 Mo (en octets)
+
+    if (file) {
+      if (file.type.match('image.*')) {
+        if (file.size > maxFileSize) {
+          alert("L'image ne doit pas dépasser 4 Mo !")
+          return
+        }
+
+        const reader = new FileReader()
+        reader.onload = function (e) {
+          const newImage = document.createElement('img')
+          newImage.src = e.target.result
+          newImage.style.height = '169px'
+          newImage.style.width = 'auto'
+
+          photoAddIcon.replaceWith(newImage)
+          photoSizeText.style.display = 'none'
+          newImageLabel.style.display = 'none'
+
+          newPhotoElements.forEach(function (element) {
+            element.style.padding = '0px'
+          })
+        }
+        reader.readAsDataURL(file)
+      } else {
+        alert("Le fichier sélectionné n'est pas une image.")
+      }
+    }
+
+    // Écouteur d'événements pour soumettre le formulaire
+    document.getElementById('dialog__edit__work__form').addEventListener('submit', submitForm)
+
+    document.getElementById('form__image').addEventListener('change', updateSubmitButton)
+    document.getElementById('form__title').addEventListener('input', updateSubmitButton)
+
+    function updateSubmitButton() {
+      const file = document.getElementById('form__image').files[0]
+      const title = document.getElementById('form__title').value
+      const submitButton = document.getElementById('submit__new__work')
+
+      // Vérifier si le fichier est une image et si le titre est rempli
+      if (file && title.trim() !== '') {
+        submitButton.style.backgroundColor = '#1d6154'
+      } else {
+        submitButton.style.backgroundColor = '' // Revenir au style par défaut
+      }
+    }
   })
 
   // Fonction pour créer un élément figure
