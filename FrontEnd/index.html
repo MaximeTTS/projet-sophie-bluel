@@ -14,7 +14,7 @@
 
   <body>
     <header>
-      <nav id="top__bar" class="top__bar__css">
+      <nav id="top__bar" class="connexion__top__bar">
         <ul>
           <li>
             <a href="#" class="mode__edition">
@@ -59,6 +59,7 @@
           <p>En cas de besoin, une équipe pluridisciplinaire peut-être constituée : architecte DPLG, décorateur(trice)</p>
         </article>
       </section>
+
       <section id="portfolio">
         <div class="projects__modifier">
           <h2>Mes Projets</h2>
@@ -74,6 +75,7 @@
           <!-- Les éléments de la galerie (les phtotos, titres...) seront ajoutés ici par JavaScript dans le fichier script.js dans assets -->
         </div>
       </section>
+
       <section id="contact">
         <h2>Contact</h2>
         <p>Vous avez un projet ? Discutons-en !</p>
@@ -96,10 +98,12 @@
         </ul>
       </nav>
     </footer>
+
+    <!-- lien vers les .js -->
     <script src="assets/script.js"></script>
     <script src="assets/login.js"></script>
 
-    <!-- Dialog for photo gallery -->
+    <!-- Dialog/Modale -->
     <dialog id="dialog" class="dialog__overlay" aria-hidden="true" role="dialog" aria-labelledby="title-dialog-overlay">
       <div id="dialog__gallery" class="dialog__gallery">
         <a id="button__to__close__first__window" href="#" class="dialog__close"><i class="fa-solid fa-xmark"></i></a>

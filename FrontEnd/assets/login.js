@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Mise à jour du lien de connexion/déconnexion
   const loginLink = document.querySelector('nav ul li a[href="login.html"]')
-  const topBar = document.querySelector('.top__bar__css')
+  const topBar = document.querySelector('.connexion__top__bar')
   const adminElements = document.querySelectorAll('.connexion')
   const bodyStyle = document.body.style
   const isLoggedIn = localStorage.getItem('isLoggedIn')
@@ -51,13 +51,21 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.removeItem('isLoggedIn')
         window.location.href = 'login.html'
       })
+
+      // Affichez l'icône "Modifier"
+      document.querySelector('.filters').style.display = 'none'
+      document.getElementById('editButton').style.display = 'block'
     } else {
       topBar.style.display = 'none' // Cache la top-bar
       adminElements.forEach((el) => (el.style.display = 'none')) // Cache les éléments admin
       bodyStyle.paddingTop = '0' // Ajuste le padding du corps
       loginLink.textContent = 'Login'
       loginLink.href = 'login.html'
+
+      // Cachez l'icône "Modifier"
+      document.getElementById('editButton').style.display = 'none'
     }
   }
+
   adjustTopBarAndAdminElements()
 })

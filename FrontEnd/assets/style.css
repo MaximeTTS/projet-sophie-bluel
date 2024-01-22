@@ -376,7 +376,7 @@ html {
 }
 
 /* Style général de la top-bar */
-.top__bar__css {
+.connexion__top__bar {
   position: absolute; /* 'fixed' pour rester en haut lors du défilement */
   top: 0;
   left: 0;
@@ -391,12 +391,12 @@ html {
 }
 
 /* Style des éléments de liste dans la top-bar */
-.top__bar__css li {
+.connexion__top__bar li {
   padding-left: 10px;
 }
 
 /* Style des icônes dans la top-bar */
-.top__bar__css svg {
+.connexion__top__bar svg {
   padding-right: 8px;
   font-size: 16px;
 }
@@ -410,7 +410,7 @@ html {
 }
 
 /* Style du bouton 'publier' dans la top-bar */
-.top__bar__css .btn__publier {
+.connexion__top__bar .btn__publier {
   background: #ffffff;
   border-radius: 60px;
   color: #000000 !important;
@@ -419,7 +419,7 @@ html {
 }
 
 /* Style des icônes dans la top-bar */
-.top__bar__css .mode__edition__icon {
+.connexion__top__bar .mode__edition__icon {
   padding-right: 8px;
   font-size: 16px;
 }
