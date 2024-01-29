@@ -2,6 +2,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const galleryContainer = document.querySelector('.gallery')
   const allWorks = [] // Garder une liste de tous les travaux pour faciliter le filtrage
 
+  // Fonction pour créer un élément figure
+  function createFigure(work) {
+    const figure = document.createElement('figure')
+    const image = document.createElement('img')
+    image.src = work.imageUrl
+    image.alt = work.title
+    figure.appendChild(image)
+
+    const figcaption = document.createElement('figcaption')
+    figcaption.textContent = work.title
+    figure.appendChild(figcaption)
+
+    return figure
+  }
+
   // Récupération des travaux depuis l'API
   fetch('http://localhost:5678/api/works')
     .then((response) => {
@@ -92,7 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Ajoutez un gestionnaire d'événements pour l'icône de la corbeille
       trashIcon.addEventListener('click', function () {
         // Appelez une fonction pour supprimer la photo
-        deletePhoto(work.id)
+        deletePhoto(work.id).then(() => {
+          // Supprimez le projet de la modale
+          figure.remove()
+        })
       })
 
       // Créez un élément <img> pour afficher l'image
@@ -125,37 +143,40 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // Suppression des travaux/images
-  function deletePhoto(photoId) {
-    // Récupérer le token d'authentification depuis le stockage local
-    const authToken = localStorage.getItem('userToken')
+  // Fonction pour supprimer une photo
+  function updateUIAfterDelete(photoId) {
+    const index = allWorks.findIndex((work) => work.id === photoId)
+    if (index !== -1) allWorks.splice(index, 1)
+    displayWorks(allWorks)
 
+    const figureToRemove = document.querySelector(`#dialog__gallery .dialog__content figure[data-id="${photoId}"]`)
+    figureToRemove?.remove()
+  }
+
+  function deletePhoto(photoId) {
+    const authToken = localStorage.getItem('userToken')
     if (!authToken) {
       console.error("Token d'authentification manquant")
       alert('Vous devez être connecté pour effectuer cette action.')
       return
     }
 
-    const headers = new Headers({
-      Authorization: `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-    })
-
     fetch(`http://localhost:5678/api/works/${photoId}`, {
       method: 'DELETE',
-      headers: headers,
+      headers: new Headers({
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      }),
     })
       .then((response) => {
         if (response.ok) {
-          // Si la suppression est réussie, actualiser la galerie ou effectuer d'autres actions nécessaires
           console.log(`Photo avec l'ID ${photoId} supprimée avec succès.`)
+          updateUIAfterDelete(photoId)
         } else if (response.status === 401) {
           console.error('Non autorisé à supprimer la photo')
           alert("Vous n'êtes pas autorisé à effectuer cette action.")
         } else {
-          return response.json().then((data) => {
-            throw new Error(data.message)
-          })
+          return response.json().then((data) => Promise.reject(new Error(data.message)))
         }
       })
       .catch((error) => {
@@ -165,14 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Fonction pour envoyer le formulaire
-  async function submitForm(event) {
+  function submitForm(event) {
     event.preventDefault()
 
     const title = document.getElementById('form__title').value
     const category = parseInt(document.getElementById('form__category').value)
     const imageInput = document.getElementById('form__image')
     const authToken = localStorage.getItem('userToken')
-    const dialog = document.getElementById('dialog')
+
+    if (!authToken) {
+      alert('Vous devez être connecté pour effectuer cette action.')
+      return
+    }
 
     const formData = new FormData()
     formData.append('title', title)
@@ -185,33 +210,33 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    try {
-      const response = await fetch('http://localhost:5678/api/works', {
-        method: 'POST',
-        headers: new Headers({
-          Authorization: `Bearer ${authToken}`,
-        }),
-        body: formData,
+    fetch('http://localhost:5678/api/works', {
+      method: 'POST',
+      headers: new Headers({ Authorization: `Bearer ${authToken}` }),
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'envoi de l'image : " + response.statusText)
+        }
+        return response.json()
       })
+      .then((result) => {
+        console.log(result)
+        alert('Image ajoutée avec succès')
+        event.target.reset() // reset le formulaire
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour de l'œuvre : " + response.statusText)
-      }
+        // Ajoutez la nouvelle œuvre à la liste allWorks
+        allWorks.push(result)
 
-      const result = await response.json()
-      console.log(result)
-      alert('Œuvre mise à jour avec succès')
-
-      allWorks.push(result)
-      displayWorks(allWorks)
-      updateCategoryDropdown(allWorks)
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'œuvre :", error)
-      alert("Erreur lors de la mise à jour de l'œuvre : " + error.message)
-    }
-
-    dialog.style.display = 'none'
-    document.getElementById('dialog__edit__work__form').reset()
+        // Rafraîchir l'affichage de la galerie avec les nouvelles données
+        displayWorks(allWorks)
+        displayWorksInDialog(allWorks)
+      })
+      .catch((error) => {
+        console.error("Erreur lors de l'envoi de l'image :", error)
+        alert("Erreur lors de l'envoi de l'image : " + error.message)
+      })
   }
 
   // Écouteur d'événements pour la prévisualisation de l'image
@@ -224,32 +249,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const maxFileSize = 4 * 1024 * 1024 // 4 Mo (en octets)
 
-    if (file) {
-      if (file.type.match('image.*')) {
-        if (file.size > maxFileSize) {
-          alert("L'image ne doit pas dépasser 4 Mo !")
-          return
-        }
-
-        const reader = new FileReader()
-        reader.onload = function (e) {
-          const newImage = document.createElement('img')
-          newImage.src = e.target.result
-          newImage.style.height = '169px'
-          newImage.style.width = 'auto'
-
-          photoAddIcon.replaceWith(newImage)
-          photoSizeText.style.display = 'none'
-          newImageLabel.style.display = 'none'
-
-          newPhotoElements.forEach(function (element) {
-            element.style.padding = '0px'
-          })
-        }
-        reader.readAsDataURL(file)
-      } else {
-        alert("Le fichier sélectionné n'est pas une image.")
+    if (file && file.type.match('image.*')) {
+      if (file.size > maxFileSize) {
+        alert("L'image ne doit pas dépasser 4 Mo !")
+        return
       }
+
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        const newImage = document.createElement('img')
+        newImage.src = e.target.result
+        newImage.style.height = '169px'
+        newImage.style.width = 'auto'
+
+        // Remplace l'icône d'ajout de photo par la nouvelle image
+        photoAddIcon.replaceWith(newImage)
+        photoSizeText.style.display = 'none'
+        newImageLabel.style.display = 'none'
+
+        newPhotoElements.forEach(function (element) {
+          element.style.padding = '0px'
+        })
+      }
+      reader.readAsDataURL(file)
     }
 
     // Écouteur d'événements pour soumettre le formulaire
@@ -271,21 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   })
-
-  // Fonction pour créer un élément figure
-  function createFigure(work) {
-    const figure = document.createElement('figure')
-    const image = document.createElement('img')
-    image.src = work.imageUrl
-    image.alt = work.title
-    figure.appendChild(image)
-
-    const figcaption = document.createElement('figcaption')
-    figcaption.textContent = work.title
-    figure.appendChild(figcaption)
-
-    return figure
-  }
 
   function updateCategoryDropdown() {
     const categoryDropdown = document.getElementById('form__category')
@@ -316,9 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Appel initial de la fonction
   updateCategoryDropdown()
-})
 
-document.addEventListener('DOMContentLoaded', function () {
   const updateWorksButton = document.getElementById('update-works')
   const closeButtonFirstWindow = document.getElementById('button__to__close__first__window')
   const closeButtonSecondWindow = document.getElementById('button__to__close__second__window')
@@ -341,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
   updateWorksButton.addEventListener('click', function () {
     dialog.style.display = 'flex' // Afficher le dialog
     resetDialog() // Réinitialiser l'état du dialogue
+    document.getElementById('dialog__edit__work__form').reset() // Réinitialiser le formulaire
   })
 
   closeButtonFirstWindow.addEventListener('click', hideDialog)
@@ -355,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
   arrowReturn.addEventListener('click', function (e) {
     e.preventDefault() // Empêcher le comportement par défaut du lien
     resetDialog() // Revenir à l'état initial du dialogue
+    document.getElementById('dialog__edit__work__form').reset() // Réinitialiser le formulaire
   })
 
   // écouteur d'événements pour masquer le dialogue lorsque l'utilisateur clique en dehors

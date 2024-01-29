@@ -31,8 +31,12 @@
         <form action="" method="" class="login__form" onsubmit="return false">
           <label for="email">E-mail</label>
           <input type="email" name="email" id="email" required />
+          <div id="email-error-message" class="error-message"></div>
+
           <label for="password">Mot de passe</label>
           <input type="password" name="password" id="password" required />
+          <div id="password-error-message" class="error-message"></div>
+
           <input type="submit" value="Se connecter" id="submit" />
         </form>
         <a href="">Mot de passe oublié</a>

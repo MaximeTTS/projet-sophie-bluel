@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (loginForm) {
     loginForm.addEventListener('submit', function (event) {
       event.preventDefault()
+      clearErrorMessages() // Appel de la fonction pour effacer les messages d'erreur
       const email = document.getElementById('email').value
       const password = document.getElementById('password').value
 
@@ -16,7 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error('Erreur dans l’identifiant ou le mot de passe')
+            if (response.status === 404) {
+              updateErrorMessage('email-error-message', 'Utilisateur inexistant')
+            } else if (response.status === 401) {
+              updateErrorMessage('password-error-message', 'Mot de passe incorrect')
+            }
+            return Promise.reject(new Error('Erreur de connexion'))
           }
           return response.json()
         })
@@ -26,9 +32,23 @@ document.addEventListener('DOMContentLoaded', function () {
           window.location.href = 'index.html'
         })
         .catch((error) => {
-          alert(error.message)
+          console.error(error)
         })
     })
+  }
+
+  function clearErrorMessages() {
+    const errorMessages = document.querySelectorAll('.error-message')
+    errorMessages.forEach(function (message) {
+      message.innerHTML = ''
+      message.style.display = 'none'
+    })
+  }
+
+  function updateErrorMessage(errorElementId, message) {
+    const errorElement = document.getElementById(errorElementId)
+    errorElement.innerHTML = message
+    errorElement.style.display = 'block'
   }
 
   // Mise à jour du lien de connexion/déconnexion
@@ -54,16 +74,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Affichez l'icône "Modifier"
       document.querySelector('.filters').style.display = 'none'
-      document.getElementById('editButton').style.display = 'block'
     } else {
-      topBar.style.display = 'none' // Cache la top-bar
       adminElements.forEach((el) => (el.style.display = 'none')) // Cache les éléments admin
       bodyStyle.paddingTop = '0' // Ajuste le padding du corps
       loginLink.textContent = 'Login'
       loginLink.href = 'login.html'
-
-      // Cachez l'icône "Modifier"
-      document.getElementById('editButton').style.display = 'none'
     }
   }
 

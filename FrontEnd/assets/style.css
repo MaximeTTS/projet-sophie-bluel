@@ -781,3 +781,10 @@ select {
 .dialog__close {
   text-decoration: none;
 }
+
+.error-message {
+  display: none; /* Caché par défaut */
+  color: red;
+  margin-top: 5px;
+  font-size: 0.8em;
+}
