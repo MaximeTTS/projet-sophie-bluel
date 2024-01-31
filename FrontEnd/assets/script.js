@@ -223,8 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then((result) => {
         console.log(result)
-        alert('Image ajoutée avec succès')
-        event.target.reset() // reset le formulaire
+        event.target.reset() // Reset le formulaire
+        // Réinitialiser la source de l'image de prévisualisation
+        document.getElementById('previewImage').src = ''
 
         // Ajoutez la nouvelle œuvre à la liste allWorks
         allWorks.push(result)
@@ -242,41 +243,44 @@ document.addEventListener('DOMContentLoaded', () => {
   // Écouteur d'événements pour la prévisualisation de l'image
   document.getElementById('form__image').addEventListener('change', function () {
     const file = this.files[0]
-    const photoAddIcon = document.getElementById('photo__add__icon')
-    const photoSizeText = document.getElementById('photo__size')
-    const newImageLabel = document.getElementById('new__image')
-    const newPhotoElements = document.querySelectorAll('.dialog__content__new__photo')
-
-    const maxFileSize = 4 * 1024 * 1024 // 4 Mo (en octets)
-
     if (file && file.type.match('image.*')) {
-      if (file.size > maxFileSize) {
-        alert("L'image ne doit pas dépasser 4 Mo !")
-        return
+      if (file.size <= 4 * 1024 * 1024) {
+        // Vérifier que la taille du fichier est inférieure ou égale à 4 Mo
+        const reader = new FileReader()
+        reader.onload = function (e) {
+          const previewImage = document.getElementById('previewImage')
+          previewImage.src = e.target.result
+
+          // Réinitialiser le padding à 0
+          const dialogContentNewPhoto = document.querySelector('.dialog__content__new__photo')
+          dialogContentNewPhoto.style.padding = '0px'
+
+          document.querySelector('.content__add__form').style.display = 'none'
+          previewImage.style.display = 'block'
+        }
+        reader.readAsDataURL(file)
+      } else {
+        alert("La taille de l'image ne doit pas dépasser 4 Mo.")
+        // Réinitialiser l'élément d'entrée de fichier si la taille est trop grande
+        this.value = ''
       }
-
-      const reader = new FileReader()
-      reader.onload = function (e) {
-        const newImage = document.createElement('img')
-        newImage.src = e.target.result
-        newImage.style.height = '169px'
-        newImage.style.width = 'auto'
-
-        // Remplace l'icône d'ajout de photo par la nouvelle image
-        photoAddIcon.replaceWith(newImage)
-        photoSizeText.style.display = 'none'
-        newImageLabel.style.display = 'none'
-
-        newPhotoElements.forEach(function (element) {
-          element.style.padding = '0px'
-        })
-      }
-      reader.readAsDataURL(file)
     }
+
+    // Écouteur d'événements pour la soumission du formulaire
+    document.getElementById('dialog__edit__work__form').addEventListener('submit', function (e) {
+      e.preventDefault() // Empêche la soumission du formulaire
+      const contentAdd = document.querySelector('.content__add__form')
+      contentAdd.style.display = ''
+
+      const previewImage = document.getElementById('previewImage')
+      previewImage.style.display = 'none' // Cacher l'élément #previewImage
+
+      const dialogContentNewPhoto = document.querySelector('.dialog__content__new__photo')
+      dialogContentNewPhoto.style.padding = '' // Réinitialiser le padding
+    })
 
     // Écouteur d'événements pour soumettre le formulaire
     document.getElementById('dialog__edit__work__form').addEventListener('submit', submitForm)
-
     document.getElementById('form__image').addEventListener('change', updateSubmitButton)
     document.getElementById('form__title').addEventListener('input', updateSubmitButton)
 

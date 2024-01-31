@@ -606,7 +606,6 @@ hr {
 /* Second window of dialog, "dialog-edit" */
 .dialog__edit__work {
   width: 630px;
-  height: 670px;
   background-color: #ffffff;
   border-radius: 10px;
   display: none;
@@ -620,7 +619,7 @@ hr {
   font-size: 15px;
 }
 
-#dialog__edit__work__form .dialog__content__new__photo {
+.dialog__content__new__photo {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -628,6 +627,17 @@ hr {
   background-color: #e8f1f7;
   border-radius: 3px;
   margin: 35px 105px 0 105px;
+}
+
+.content__add__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#previewImage {
+  height: 169px;
+  display: none;
 }
 
 .dialog__content__new__photo i {
@@ -700,7 +710,7 @@ select {
 }
 
 #dialog__edit__work__form {
-  text-align: center;
+  align-items: center;
 }
 
 #dialog__edit__work__form input[type='submit'] {
@@ -787,4 +797,9 @@ select {
   color: red;
   margin-top: 5px;
   font-size: 0.8em;
+}
+
+#photo__add__icon {
+  width: 76px;
+  height: 76px;
 }

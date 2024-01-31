@@ -121,13 +121,20 @@
           <a id="button__to__close__second__window" href="#"><i class="fa-solid fa-xmark"></i></a>
         </div>
         <h3 class="dialog__title">Ajout photo</h3>
+
         <form id="dialog__edit__work__form" method="post" action="#">
           <div id="dialog__edit__new__photo image-preview" class="dialog__content__new__photo">
-            <i id="photo__add__icon" class="fa-regular fa-image"></i>
-            <label id="new__image">+ Ajouter photo</label>
-            <input id="form__image" type="file" name="image" accept="image/*, .jpg, .jpeg, .png" required />
-            <p id="photo__size">jpg, png : 4mo max</p>
+            <div class="content__add">
+              <img id="previewImage" />
+            </div>
+            <div class="content__add__form">
+              <img src="assets/images/picture-svgrepo-com 1 (1).svg" id="photo__add__icon" />
+              <label id="new__image">+ Ajouter photo</label>
+              <input id="form__image" type="file" name="image" accept="image/*, .jpg, .jpeg, .png" required />
+              <p id="photo__size">jpg, png : 4mo max</p>
+            </div>
           </div>
+
           <div class="dialog__content__new__category__title">
             <label for="form__title">Titre</label>
             <input type="text" name="title" id="form__title" value="" required />
