@@ -1,6 +1,6 @@
-# P2-Sophie-Bluel
+# P3-Sophie-Bluel
 
-## Projet n°2 - Développeur Applications JavaScript
+## Projet n°3 - Développeur Applications JavaScript
 
 ## Contexte
 
